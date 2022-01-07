@@ -10,14 +10,15 @@ const {
 } = require("../controllers/user");
 
 // http://localhost:5000/api/users
-
 userRoute.post("/users", createNewUser);
+
 // http://localhost:5000/api/updateUser/:id
 userRoute.put("/updateUser/:id", updateUser);
 
 // Auth, admin check
 // http://localhost:5000/api/deleteUser/:id
 userRoute.delete("/deleteUser/:id", deleteUser);
+
 // Auth check
 // http://localhost:5000/api/getAllUser
 userRoute.get("/getAllUser", getAllUser);
