@@ -10,6 +10,7 @@ const {
 } = require("../controllers/user");
 
 const authentication = require("../middleware/authentication");
+const authorization = require("../middleware/authorization");
 
 // http://localhost:5000/api/users
 userRoute.post("/users", createNewUser);
@@ -19,7 +20,7 @@ userRoute.put("/updateUser/:id", authentication, updateUser);
 
 // Auth, admin check
 // http://localhost:5000/api/deleteUser/:id
-userRoute.delete("/deleteUser/:id", authentication, deleteUser);
+userRoute.delete("/deleteUser/:id", authentication, authorization, deleteUser);
 
 // Auth check
 // http://localhost:5000/api/getAllUser
