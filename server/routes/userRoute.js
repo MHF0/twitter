@@ -9,22 +9,24 @@ const {
   getUserById,
 } = require("../controllers/user");
 
+const authentication = require("../middleware/authentication");
+
 // http://localhost:5000/api/users
 userRoute.post("/users", createNewUser);
 
 // http://localhost:5000/api/updateUser/:id
-userRoute.put("/updateUser/:id", updateUser);
+userRoute.put("/updateUser/:id", authentication, updateUser);
 
 // Auth, admin check
 // http://localhost:5000/api/deleteUser/:id
-userRoute.delete("/deleteUser/:id", deleteUser);
+userRoute.delete("/deleteUser/:id", authentication, deleteUser);
 
 // Auth check
 // http://localhost:5000/api/getAllUser
-userRoute.get("/getAllUser", getAllUser);
+userRoute.get("/getAllUser", authentication, getAllUser);
 
 // Auth check
 // http://localhost:5000/api/getUser/:id
-userRoute.get("/getUser/:id", getUserById);
+userRoute.get("/getUser/:id", authentication, getUserById);
 
 module.exports = userRoute;
