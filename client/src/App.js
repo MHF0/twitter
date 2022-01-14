@@ -1,12 +1,17 @@
 import "./App.css";
 import Register from "./Components/Register/Register";
+import Home from "./Components/Home/Home";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-function App() {
+const App = () => {
   return (
     <div className="App">
-      <Register />
+      <ToastContainer />
+      {/* <Register /> */}
+      <Home />
     </div>
   );
-}
+};
 
 export default App;
