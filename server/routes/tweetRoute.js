@@ -11,8 +11,8 @@ const {
 
 const authentication = require("../middleware/authentication");
 
-// http://localhost:5000/api/createTweet/:userId
-tweetRoute.post("/createTweet/:userId", authentication, createNewTweet);
+// http://localhost:5000/api/createTweet/
+tweetRoute.post("/createTweet/", authentication, createNewTweet);
 
 // http://localhost:5000/api/updateTweet/:tweetId
 tweetRoute.put("/updateTweet/:tweetId", authentication, updateTweet);

@@ -1,12 +1,13 @@
 const TweetModel = require("../database/models/tweetModel");
 
 const createNewTweet = (req, res) => {
-  const userId = req.params.userId;
-  const { description } = req.body;
+  const userId = req.token.userId;
+  const { description, date } = req.body;
 
   const newTweet = new TweetModel({
     userId,
     description,
+    date
   });
 
   newTweet

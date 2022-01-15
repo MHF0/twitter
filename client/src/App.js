@@ -3,13 +3,16 @@ import Register from "./Components/Register/Register";
 import Home from "./Components/Home/Home";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Routes, Route } from "react-router-dom";
 
 const App = () => {
   return (
     <div className="App">
       <ToastContainer />
-      {/* <Register /> */}
-      <Home />
+      <Routes>
+        <Route path="/" element={<Register />} />
+        <Route path="/home/" element={<Home />} />
+      </Routes>
     </div>
   );
 };

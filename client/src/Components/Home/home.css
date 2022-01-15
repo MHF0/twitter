@@ -14,7 +14,9 @@
 
 body {
     /* background-color: #efefef; */
-    color: var(--color)
+    color: var(--color);
+    font-family: 'Poppins',
+        sans-serif;
 }
 
 .container {
@@ -259,10 +261,16 @@ nav .container {
 
 }
 
-.middle .create-post input[type="text"] {
+.middle .create-post textarea {
     width: 100%;
     padding-left: 1rem;
     background: transparent;
+    outline: none;
+}
+
+.middle .create-post textarea::placeholder {
+    font-size: 20px;
+    padding-top: 10px;
 }
 
 .middle .create-post .btn3 {
