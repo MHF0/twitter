@@ -3,9 +3,12 @@ import "./register.css";
 import Modal from "react-modal";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 Modal.setAppElement("#root");
 export default function Register() {
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
@@ -30,8 +33,23 @@ export default function Register() {
         password,
       })
       .then((result) => {
-        console.log(result);
         toast.success(result.data.message);
+      })
+      .catch((err) => {
+        toast.error(err.response.data.message);
+      });
+  };
+
+  const handelSigIn = async () => {
+    await axios
+      .post(`http://localhost:5000/api/login`, {
+        email,
+        password,
+      })
+      .then((result) => {
+        localStorage.setItem("token", result.data.token);
+        toast.success(result.data.message);
+        navigate("/home");
       })
       .catch((err) => {
         toast.error(err.response.data.message);
@@ -205,15 +223,6 @@ export default function Register() {
                   <div className="inp">
                     <input
                       type="text"
-                      placeholder="Name"
-                      onChange={(e) => {
-                        setPassword(e.target.value);
-                      }}
-                    />
-                  </div>
-                  <div className="inp">
-                    <input
-                      type="text"
                       placeholder="Email"
                       onChange={(e) => {
                         setEmail(e.target.value);
@@ -221,7 +230,21 @@ export default function Register() {
                     />
                   </div>
                   <div className="inp">
-                    <input type="submit" value="Log In" className="btn" />
+                    <input
+                      type="Password"
+                      placeholder="Password"
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                      }}
+                    />
+                  </div>
+                  <div className="inp">
+                    <input
+                      type="submit"
+                      value="Log In"
+                      className="btn"
+                      onClick={handelSigIn}
+                    />
                   </div>
                   <h3>
                     Don't have an account? <span>Sign up</span>
