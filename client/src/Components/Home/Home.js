@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "./home.css";
 import {
   FaHeart,
@@ -14,7 +14,63 @@ import { IoMdNotificationsOutline } from "react-icons/io";
 import { AiOutlineFileImage } from "react-icons/ai";
 import { BiPoll } from "react-icons/bi";
 import { FiBookmark } from "react-icons/fi";
-function Home() {
+import { format } from "timeago.js";
+import axios from "axios";
+import { toast } from "react-toastify";
+import TimeAgo from "react-timeago";
+import frenchStrings from "react-timeago/lib/language-strings/fr";
+import buildFormatter from "react-timeago/lib/formatters/buildFormatter";
+
+const Home = () => {
+  const [description, setDescription] = useState("");
+  const [date, setDate] = useState("");
+
+  const [tweet, setTweet] = useState([]);
+
+  const formatter = buildFormatter(frenchStrings);
+
+  const token = localStorage.getItem("token");
+
+  const handelCreateTweet = async (e) => {
+    e.preventDefault();
+    setDate(Date.now());
+    await axios
+      .post(
+        `http://localhost:5000/api/createTweet`,
+        {
+          description,
+          date,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      .then((result) => {
+        console.log(result);
+        toast.success(result.data.message);
+        getAllTweet();
+      })
+      .catch((err) => {
+        toast.error(err.response.data.message);
+      });
+  };
+
+  const getAllTweet = async () => {
+    await axios
+      .get(`http://localhost:5000/api/getAllTweets`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((result) => {
+        console.log(result.data.result);
+        setTweet(result.data.result.reverse());
+      })
+      .catch((err) => {
+        console.log(err);
+        toast.error(err.response.data.message);
+      });
+  };
+
+  useEffect(() => {
+    getAllTweet();
+  }, []);
   return (
     <>
       <div className="main">
@@ -89,14 +145,18 @@ function Home() {
               />
             </div>
 
-            <form className="create-post">
+            <form className="create-post" onSubmit={handelCreateTweet}>
               <div className="post-inp">
                 <img
                   src="https://www.everblazing.org/wp-content/uploads/2017/06/avatar-372-456324-300x300.png"
                   alt=""
                   className="profile1"
                 />
-                <input type="text" placeholder="What's happening?" />
+                <textarea
+                  type="text"
+                  placeholder="What's happening?"
+                  onChange={(e) => setDescription(e.target.value)}
+                />
               </div>
               <hr />
               <div className="icon">
@@ -126,54 +186,55 @@ function Home() {
                 <input type="submit" value="Tweet" className="btn3" />
               </div>
             </form>
+
             <div className="feeds">
-              <div className="feed">
-                <div className="head">
-                  <div className="user">
-                    <img
-                      src="https://www.everblazing.org/wp-content/uploads/2017/06/avatar-372-456324-300x300.png"
-                      alt=""
-                      className="profile"
-                    />
+              {tweet &&
+                tweet.map((item, index) => (
+                  <div className="feed" key={index}>
+                    <div className="head">
+                      <div className="user">
+                        <img
+                          src="https://www.everblazing.org/wp-content/uploads/2017/06/avatar-372-456324-300x300.png"
+                          alt=""
+                          className="profile"
+                        />
 
-                    <div className="info">
-                      <h3>
-                        {" "}
-                        Selene Richard{" "}
-                        <span style={{ color: "#536471" }}>
-                          @ Selene Richard{" "}
-                        </span>
-                      </h3>
-                      <small> Dubai, 15 minutes ago</small>
-                      <br />
-                      <p>
-                        <b> Selene Richard</b> It is a long established fact
-                        that a reader will be distracted{" "}
-                      </p>
+                        <div className="info">
+                          <h3>
+                            {" "}
+                            <b> {item.userId.username}</b>{" "}
+                            <span style={{ color: "#536471" }}>
+                              <small>@{item.userId.username}</small>{" "}
+                            </span>
+                          </h3>
+                          <small> {format(item.date)}</small>
+                          <br />
+                          <p>{item.description} </p>
+                        </div>
+                      </div>
+                      <span className="edit">
+                        <GoSearch />
+                      </span>
+                    </div>
+
+                    <div className="action">
+                      <span>
+                        <FaHeart style={{ color: "#536471" }} />
+                        <small>1</small>{" "}
+                      </span>
+                      <span>
+                        <FaRegComment style={{ color: "#536471" }} />
+                        <small>1</small>{" "}
+                      </span>
+                      <span>
+                        <FaShareAlt style={{ color: " #536471" }} />{" "}
+                      </span>
+                      <span>
+                        <FiBookmark style={{ color: "#536471" }} />{" "}
+                      </span>
                     </div>
                   </div>
-                  <span className="edit">
-                    <GoSearch />
-                  </span>
-                </div>
-
-                <div className="action">
-                  <span>
-                    <FaHeart style={{ color: "#536471" }} />
-                    <small>1</small>{" "}
-                  </span>
-                  <span>
-                    <FaRegComment style={{ color: "#536471" }} />
-                    <small>1</small>{" "}
-                  </span>
-                  <span>
-                    <FaShareAlt style={{ color: " #536471" }} />{" "}
-                  </span>
-                  <span>
-                    <FiBookmark style={{ color: "#536471" }} />{" "}
-                  </span>
-                </div>
-              </div>
+                ))}
 
               <div className="feed">
                 <div className="head">
@@ -227,63 +288,6 @@ function Home() {
                   <span>
                     <FiBookmark style={{ color: "#536471" }} />{" "}
                   </span>
-                </div>
-              </div>
-
-              <div className="feed">
-                <div className="head">
-                  <div className="user">
-                    <img
-                      src="https://www.everblazing.org/wp-content/uploads/2017/06/avatar-372-456324-300x300.png"
-                      alt=""
-                      className="profile"
-                    />
-
-                    <div className="info">
-                      <h3> Selene Richard</h3>
-                      <small> Dubai, 15 minutes ago</small>
-                    </div>
-                  </div>
-                  <span className="edit">
-                    <i className="fas fa-search"></i>
-                  </span>
-                </div>
-
-                <div className="photo">
-                  <img
-                    src="https://images.pexels.com/photos/3155661/pexels-photo-3155661.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500"
-                    alt=""
-                    width="100%"
-                  />
-                </div>
-
-                <div className="action">
-                  <span>
-                    <FaHeart style={{ color: "#536471" }} />
-                    <small>1</small>{" "}
-                  </span>
-                  <span>
-                    <FaRegComment style={{ color: "#536471" }} />
-                    <small>1</small>{" "}
-                  </span>
-                  <span>
-                    <FaShareAlt style={{ color: " #536471" }} />{" "}
-                  </span>
-                  <span>
-                    <FiBookmark style={{ color: "#536471" }} />{" "}
-                  </span>
-
-                  <div className="mark">
-                    <span>
-                      <i className="far fa-bookmark"></i>{" "}
-                    </span>
-                  </div>
-                </div>
-                <div className="caption">
-                  <p>
-                    <b> Selene Richard</b> It is a long established fact that a
-                    reader will be distracted
-                  </p>
                 </div>
               </div>
             </div>
@@ -504,6 +508,6 @@ function Home() {
       </div>
     </>
   );
-}
+};
 
 export default Home;

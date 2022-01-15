@@ -48,8 +48,9 @@ export default function Register() {
       })
       .then((result) => {
         localStorage.setItem("token", result.data.token);
+        console.log(result.data);
         toast.success(result.data.message);
-        navigate("/home");
+        navigate(`/home`);
       })
       .catch((err) => {
         toast.error(err.response.data.message);
