@@ -11,7 +11,8 @@ const App = () => {
       <ToastContainer />
       <Routes>
         <Route path="/" element={<Register />} />
-        <Route path="/home/" element={<Home />} />
+        {/* <Route path="/home/:tweetId" element={<Home />} /> */}
+        <Route path="/home" element={<Home />} />
       </Routes>
     </div>
   );

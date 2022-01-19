@@ -7,6 +7,7 @@ const {
   deleteTweet,
   getAllTweets,
   getTweetsByUser,
+  getTweetsById
 } = require("../controllers/tweet");
 
 const authentication = require("../middleware/authentication");
@@ -25,5 +26,8 @@ tweetRoute.get("/getAllTweets", authentication, getAllTweets);
 
 // http://localhost:5000/api/getUserTweets/:userId
 tweetRoute.get("/getUserTweets/:userId", authentication, getTweetsByUser);
+
+// http://localhost:5000/api/getTweets/:id
+tweetRoute.get("/getTweets/:id", authentication, getTweetsById);
 
 module.exports = tweetRoute;

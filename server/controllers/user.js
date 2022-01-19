@@ -21,6 +21,12 @@ const createNewUser = (req, res) => {
       });
     })
     .catch((err) => {
+      if (err.keyPattern) {
+        return res.status(409).json({
+          success: false,
+          message: `The email already exists`,
+        });
+      }
       res.status(404).json({
         success: false,
         message: "Check the input first",
