@@ -266,6 +266,7 @@ nav .container {
     padding-left: 1rem;
     background: transparent;
     outline: none;
+    padding-top: 2rem
 }
 
 .middle .create-post textarea::placeholder {

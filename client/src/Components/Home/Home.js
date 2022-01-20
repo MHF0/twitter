@@ -17,17 +17,22 @@ import { FiBookmark } from "react-icons/fi";
 import { format } from "timeago.js";
 import axios from "axios";
 import { toast } from "react-toastify";
-import TimeAgo from "react-timeago";
-import frenchStrings from "react-timeago/lib/language-strings/fr";
-import buildFormatter from "react-timeago/lib/formatters/buildFormatter";
+import Modal from "react-modal";
+import { Link, useParams } from "react-router-dom";
+
+Modal.setAppElement("#root");
 
 const Home = () => {
+  // const { tweetId } = useParams();
   const [description, setDescription] = useState("");
   const [date, setDate] = useState("");
-
   const [tweet, setTweet] = useState([]);
 
-  const formatter = buildFormatter(frenchStrings);
+  const [commentTweet, setCommentTweet] = useState("");
+  const [comment, setComment] = useState([]);
+
+  const [modalIsOpen, setmodalIsOpen] = useState(false);
+  const [modalIsOpen2, setmodalIsOpen2] = useState(false);
 
   const token = localStorage.getItem("token");
 
@@ -44,12 +49,11 @@ const Home = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       )
       .then((result) => {
-        console.log(result);
         toast.success(result.data.message);
         getAllTweet();
       })
       .catch((err) => {
-        toast.error(err.response.data.message);
+        // toast.error(err.response.data.message);
       });
   };
 
@@ -59,18 +63,52 @@ const Home = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((result) => {
-        console.log(result.data.result);
         setTweet(result.data.result.reverse());
       })
       .catch((err) => {
         console.log(err);
-        toast.error(err.response.data.message);
+        // toast.error(err.response.data.message);
       });
   };
 
   useEffect(() => {
     getAllTweet();
+    // getTweetById();
   }, []);
+
+  const getTweetById = async (tweetId) => {
+    console.log(tweetId);
+    await axios
+      .get(`http://localhost:5000/api/getTweets/${tweetId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((result) => {
+        setCommentTweet(result.data.result);
+      })
+      .catch((err) => {
+        console.log(err);
+        // toast.error(err.response.data.message);
+      });
+  };
+
+  const handelCreateComment = async (tweetId) => {
+    console.log("tweetId", tweetId);
+    await axios
+      .post(
+        `http://localhost:5000/api/createComment/${tweetId}`,
+        { comment },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      )
+      .then((result) => {
+        console.log("comment", result.data.result);
+        setComment(result.data.result);
+      })
+      .catch((err) => {
+        // toast.error(err.response.data.message);
+      });
+  };
   return (
     <>
       <div className="main">
@@ -223,8 +261,101 @@ const Home = () => {
                         <small>1</small>{" "}
                       </span>
                       <span>
-                        <FaRegComment style={{ color: "#536471" }} />
+                        <FaRegComment
+                          style={{ color: "#536471" }}
+                          onClick={() => {
+                            setmodalIsOpen(true);
+                            getTweetById(item._id);
+                          }}
+                        />
                         <small>1</small>{" "}
+                        <Modal
+                          isOpen={modalIsOpen}
+                          onRequestClose={() => setmodalIsOpen(false)}
+                          style={{
+                            overlay: {
+                              backgroundColor: "rgba(240, 240, 240, 0.1)",
+                              position: "fixed",
+                              top: 0,
+                              left: 0,
+                              right: 0,
+                              bottom: 0,
+                            },
+                            content: {
+                              position: "absolute",
+                              top: "100px",
+                              left: "400px",
+                              right: "400px",
+                              bottom: "180px",
+                            },
+                          }}
+                        >
+                          <p>
+                            {commentTweet && commentTweet.userId.username}{" "}
+                            <small>
+                              @{commentTweet && commentTweet.userId.username}
+                            </small>{" "}
+                          </p>
+                          <p>{commentTweet.description} </p>
+                          <form
+                            className="create-post"
+                            onSubmit={handelCreateTweet}
+                          >
+                            <div className="post-inp">
+                              <img
+                                src="https://www.everblazing.org/wp-content/uploads/2017/06/avatar-372-456324-300x300.png"
+                                alt=""
+                                className="profile1"
+                              />
+                              <textarea
+                                type="text"
+                                placeholder="Comment"
+                                onChange={(e) => setComment(e.target.value)}
+                              />
+                            </div>
+                            <hr />
+                            <div className="icon">
+                              <div style={{ paddingLeft: "50px" }}>
+                                <span>
+                                  <AiOutlineFileImage
+                                    size={20}
+                                    style={{ color: "rgb(29, 155, 240)" }}
+                                  />{" "}
+                                </span>
+                                <span>
+                                  <MdTagFaces
+                                    size={20}
+                                    style={{ color: "rgb(29, 155, 240)" }}
+                                  />{" "}
+                                </span>
+                                <span>
+                                  <BiPoll
+                                    size={20}
+                                    style={{ color: "rgb(29, 155, 240)" }}
+                                  />{" "}
+                                </span>
+                                <span>
+                                  <FaMapMarkerAlt
+                                    size={20}
+                                    style={{ color: "rgb(29, 155, 240)" }}
+                                  />{" "}
+                                </span>
+                              </div>
+                              <input
+                                type="submit"
+                                value="Comment"
+                                className="btn3"
+                                onClick={() => handelCreateComment(item._id)}
+                              />
+                            </div>
+                          </form>
+                          <a
+                            onClick={() => setmodalIsOpen(false)}
+                            className="close"
+                          >
+                            X
+                          </a>
+                        </Modal>
                       </span>
                       <span>
                         <FaShareAlt style={{ color: " #536471" }} />{" "}

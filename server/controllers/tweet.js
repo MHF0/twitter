@@ -7,7 +7,7 @@ const createNewTweet = (req, res) => {
   const newTweet = new TweetModel({
     userId,
     description,
-    date
+    date,
   });
 
   newTweet
@@ -108,10 +108,31 @@ const getTweetsByUser = (req, res) => {
     });
 };
 
+const getTweetsById = (req, res) => {
+  const id = req.params.id;
+  console.log(req.params.id);
+  TweetModel.findById({ _id: id })
+    .populate("userId", "username email name bio website")
+    .then((result) => {
+      res.status(200).json({
+        success: true,
+        message: "get tweet by Id",
+        result,
+      });
+    })
+    .catch((err) => {
+      res.status(404).json({
+        success: false,
+        message: "Erorr happend while Get tweet",
+        err,
+      });
+    });
+};
 module.exports = {
   createNewTweet,
   updateTweet,
   deleteTweet,
   getAllTweets,
   getTweetsByUser,
+  getTweetsById,
 };
