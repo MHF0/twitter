@@ -11,15 +11,17 @@ import { BsEnvelope } from "react-icons/bs";
 import { GoSearch } from "react-icons/go";
 import { MdTravelExplore, MdTagFaces } from "react-icons/md";
 import { IoMdNotificationsOutline } from "react-icons/io";
-import { AiOutlineFileImage } from "react-icons/ai";
+import { AiOutlineFileImage, AiOutlineEdit } from "react-icons/ai";
 import { BiPoll } from "react-icons/bi";
 import { FiBookmark } from "react-icons/fi";
 import { format } from "timeago.js";
 import axios from "axios";
 import { toast } from "react-toastify";
 import Modal from "react-modal";
-import { Link, useParams } from "react-router-dom";
-
+import { TiDeleteOutline } from "react-icons/ti";
+import { Link } from "react-router-dom";
+import LiftSide from "../LeftSide/LiftSide";
+import RightSide from "../RightSide/RightSide";
 Modal.setAppElement("#root");
 
 const Home = () => {
@@ -35,6 +37,7 @@ const Home = () => {
   const [modalIsOpen2, setmodalIsOpen2] = useState(false);
 
   const token = localStorage.getItem("token");
+  const curentUser = localStorage.getItem("curentUser");
 
   const handelCreateTweet = async (e) => {
     e.preventDefault();
@@ -73,7 +76,6 @@ const Home = () => {
 
   useEffect(() => {
     getAllTweet();
-    // getTweetById();
   }, []);
 
   const getTweetById = async (tweetId) => {
@@ -92,7 +94,6 @@ const Home = () => {
   };
 
   const handelCreateComment = async (tweetId) => {
-    console.log("tweetId", tweetId);
     await axios
       .post(
         `http://localhost:5000/api/createComment/${tweetId}`,
@@ -102,77 +103,51 @@ const Home = () => {
         }
       )
       .then((result) => {
-        console.log("comment", result.data.result);
         setComment(result.data.result);
       })
       .catch((err) => {
         // toast.error(err.response.data.message);
       });
   };
+
+  const handeldeleteTweet = async (tweetId) => {
+    await axios
+      .delete(`http://localhost:5000/api/deleteTweet/${tweetId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((result) => {
+        toast.error("The tweet has been deleted secsessfly");
+
+        getAllTweet();
+      })
+      .catch((err) => {
+        //
+      });
+  };
+
+  const handelUpdateTweet = async (tweetId) => {
+    await axios
+      .put(
+        `http://localhost:5000/api/updateTweet/${tweetId}`,
+        { description },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      )
+      .then((result) => {
+        toast(result.data.message);
+        getAllTweet();
+      })
+      .catch((err) => {
+        //
+      });
+  };
+
   return (
     <>
       <div className="main">
         <div className="container">
-          <div className="left">
-            <div className="side-bar">
-              <a className="menue-item">
-                <span>
-                  <img
-                    className="logo"
-                    width="30%"
-                    src="https://th.bing.com/th/id/R.048de335ff9de3bac56b8dcbdfb561d7?rik=GRbAwDsT9Y2HXA&pid=ImgRaw&r=0"
-                    alt=""
-                  />
-                </span>
-              </a>
-              <a className="menue-item">
-                <span>
-                  {" "}
-                  <FaHome size={30} className="icon" />
-                </span>
-                <h3>Home</h3>
-              </a>
-              <a className="menue-item">
-                <span>
-                  {" "}
-                  <MdTravelExplore size={30} className="icon" />
-                </span>
-                <h3>Explore</h3>
-              </a>
-              <a className="menue-item">
-                <span>
-                  {" "}
-                  <IoMdNotificationsOutline size={30} className="icon" />
-                </span>
-                <h3>Notifications</h3>
-              </a>
-              <a className="menue-item">
-                <span>
-                  {" "}
-                  <BsEnvelope size={30} className="icon" />
-                </span>
-                <h3>Message</h3>
-              </a>
-              <a className="menue-item">
-                <span>
-                  {" "}
-                  <GoSearch size={30} className="icon" />
-                </span>
-                <h3>Settings</h3>
-              </a>
-              <a className="menue-item">
-                <span>
-                  {" "}
-                  <GoSearch size={30} className="icon" />
-                </span>
-                <h3>Settings</h3>
-              </a>
-
-              <div className="btn2">
-                <button> Tweet</button>
-              </div>
-            </div>
-          </div>
+          <LiftSide />
           <div className="middle">
             <div className="home">
               <h3>Home</h3>
@@ -247,12 +222,66 @@ const Home = () => {
                           </h3>
                           <small> {format(item.date)}</small>
                           <br />
+                          {/* <Link to={`/comment/${item._id}`}> */}
                           <p>{item.description} </p>
+                          {/* </Link> */}
                         </div>
                       </div>
-                      <span className="edit">
-                        <GoSearch />
-                      </span>
+                      {curentUser.toLowerCase() === item.userId.email ? (
+                        <>
+                          <span className="edit">
+                            <TiDeleteOutline
+                              size={25}
+                              onClick={() => handeldeleteTweet(item._id)}
+                            />
+                            <AiOutlineEdit
+                              size={25}
+                              onClick={() => {
+                                setmodalIsOpen2(true);
+                              }}
+                            />
+                          </span>
+                          <Modal
+                            isOpen={modalIsOpen2}
+                            onRequestClose={() => setmodalIsOpen2(false)}
+                            style={{
+                              overlay: {
+                                backgroundColor: "rgba(240, 240, 240, 0.1)",
+                                position: "fixed",
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                              },
+                              content: {
+                                position: "absolute",
+                                top: "100px",
+                                left: "400px",
+                                right: "400px",
+                                bottom: "180px",
+                              },
+                            }}
+                          >
+                            <textarea
+                              type="text"
+                              placeholder="Tweet"
+                              onChange={(e) => setDescription(e.target.value)}
+                            />
+
+                            <button onClick={() => handelUpdateTweet(item._id)}>
+                              Update
+                            </button>
+                            <a
+                              onClick={() => setmodalIsOpen2(false)}
+                              className="close"
+                            >
+                              X
+                            </a>
+                          </Modal>
+                        </>
+                      ) : (
+                        ""
+                      )}
                     </div>
 
                     <div className="action">
@@ -423,218 +452,7 @@ const Home = () => {
               </div>
             </div>
           </div>
-          <div className="right">
-            <div className="friends">
-              <div className="search-box">
-                <GoSearch />{" "}
-                <input type="search" placeholder="Search Twitter" />
-              </div>
-
-              <div className="friend">
-                <h3 className="fri-name">Trends for you</h3>
-                <hr
-                  style={{
-                    backgroundColor: "rgb(197, 195, 195)",
-                    width: " 100%",
-                    height: "1px",
-                  }}
-                />
-                <div style={{ margin: "10px 0", padding: " 0 10px" }}>
-                  <p
-                    style={{
-                      color: "#999",
-                      fontWeight: "800",
-                      fontSize: "18px",
-                    }}
-                  >
-                    Trending Worldwild
-                  </p>
-                  <p
-                    style={{
-                      color: "black",
-                      fontWeight: "800",
-                      fontSize: "18px",
-                    }}
-                  >
-                    #BreakingNews
-                  </p>
-                </div>
-                <div className="info1">
-                  <div className="handle">
-                    <h4>Selene Richard</h4>
-                    <p className="text">
-                      Lorem ipsum dolor sit ipsum dolor sit
-                    </p>
-                  </div>
-                  <img
-                    src="https://www.everblazing.org/wp-content/uploads/2017/06/avatar-372-456324-300x300.png"
-                    alt=""
-                    className="profile1"
-                  />
-                </div>
-                <p
-                  style={{
-                    margin: "5px 0 10px 0",
-                    padding: "0 3%",
-                    color: "#999",
-                  }}
-                >
-                  10.070 people are tweeting about this
-                </p>
-                <hr
-                  style={{
-                    backgroundColor: "rgb(197, 195, 195)",
-                    width: "100%",
-                    height: "1px",
-                    marginBottom: "20px",
-                  }}
-                />
-
-                <div className="info1">
-                  <div className="handle">
-                    <h4>Selene Richard</h4>
-                    <p className="text">
-                      Lorem ipsum dolor sit ipsum dolor sit
-                    </p>
-                  </div>
-                  <img
-                    src="https://www.everblazing.org/wp-content/uploads/2017/06/avatar-372-456324-300x300.png"
-                    alt=""
-                    className="profile1"
-                  />
-                </div>
-
-                <p
-                  style={{
-                    margin: "5px 0 10px 0",
-                    padding: "0 3%",
-                    color: "#999",
-                  }}
-                >
-                  10.070 people are tweeting about this
-                </p>
-                <hr
-                  style={{
-                    backgroundColor: "rgb(197, 195, 195)",
-                    width: "100%",
-                    height: "1px",
-                    marginBottom: "20px",
-                  }}
-                />
-
-                <div className="info1">
-                  <div className="handle">
-                    <h4>Selene Richard</h4>
-                    <p className="text">
-                      Lorem ipsum dolor sit ipsum dolor sit
-                    </p>
-                  </div>
-                  <img sr alt="" className="profile1" />
-                </div>
-                <p
-                  style={{
-                    margin: "5px 0 10px 0",
-                    padding: "0 3%",
-                    color: "#999",
-                  }}
-                >
-                  10.070 people are tweeting about this
-                </p>
-                <hr
-                  style={{
-                    backgroundColor: "rgb(197, 195, 195)",
-                    width: "100%",
-                    height: "1px",
-                    marginBottom: "20px",
-                  }}
-                />
-              </div>
-
-              <div className="friends">
-                <div className="friend">
-                  <h3 className="fri-name">Who to follow</h3>
-                  <div className="info">
-                    <img
-                      src="https://images.pexels.com/photos/3586798/pexels-photo-3586798.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500"
-                      alt=""
-                      className="profile"
-                    />
-
-                    <div className="handle">
-                      <h4>Selene Richard</h4>
-                      <p className="text">Lorem ipsum dolor sit</p>
-                    </div>
-                    <input type="submit" value="Follow" className="btn33" />
-                  </div>
-                  <div className="info">
-                    <img
-                      src="https://images.pexels.com/photos/2287252/pexels-photo-2287252.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500"
-                      alt=""
-                      className="profile"
-                    />
-
-                    <div className="handle">
-                      <h4>David john</h4>
-                      <p className="text">Lorem ipsum dolor sit</p>
-                    </div>
-                    <input type="submit" value="Follow" className="btn33" />
-                  </div>
-                  <div className="info">
-                    <img
-                      src="https://images.pexels.com/photos/2117283/pexels-photo-2117283.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500"
-                      alt=""
-                      className="profile"
-                    />
-
-                    <div className="handle">
-                      <h4>Dany James</h4>
-                      <p className="text">Lorem ipsum dolor sit</p>
-                    </div>
-                    <input type="submit" value="Follow" className="btn33" />
-                  </div>
-                  <div className="info">
-                    <img
-                      src="https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500"
-                      alt=""
-                      className="profile"
-                    />
-
-                    <div className="handle">
-                      <h4>Joseph thomas</h4>
-                      <p className="text">Lorem ipsum dolor sit</p>
-                    </div>
-                    <input type="submit" value="Follow" className="btn33" />
-                  </div>
-                  <div className="info">
-                    <img
-                      src="https://images.pexels.com/photos/1516680/pexels-photo-1516680.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500"
-                      alt=""
-                      className="profile"
-                    />
-
-                    <div className="handle">
-                      <h4>William David</h4>
-                      <p className="text">Lorem ipsum dolor sit</p>
-                    </div>
-                    <input type="submit" value="Follow" className="btn33" />
-                  </div>
-                  <div className="info">
-                    <img
-                      src="https://images.pexels.com/photos/842980/pexels-photo-842980.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500"
-                      alt=""
-                      className="profile"
-                    />
-
-                    <div className="handle">
-                      <h4>Mark James</h4>
-                      <p className="text">Lorem ipsum dolor sit</p>
-                    </div>
-                    <input type="submit" value="Follow" className="btn33" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <RightSide />
         </div>
       </div>
     </>
