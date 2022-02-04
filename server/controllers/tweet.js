@@ -30,9 +30,15 @@ const createNewTweet = (req, res) => {
 
 const updateTweet = (req, res) => {
   const tweetId = req.params.tweetId;
+  const userId = req.token.userId;
+
   const { description } = req.body;
 
-  TweetModel.findOneAndUpdate({ _id: tweetId }, { description }, { new: true })
+  TweetModel.findOneAndUpdate(
+    { _id: tweetId, userId },
+    { description },
+    { new: true }
+  )
     .then((result) => {
       res.status(201).json({
         success: true,
@@ -51,8 +57,9 @@ const updateTweet = (req, res) => {
 
 const deleteTweet = (req, res) => {
   const tweetId = req.params.tweetId;
+  const userId = req.token.userId;
 
-  TweetModel.findOneAndDelete({ _id: tweetId })
+  TweetModel.findOneAndDelete({ _id: tweetId, userId })
     .then((result) => {
       res.status(200).json({
         success: true,

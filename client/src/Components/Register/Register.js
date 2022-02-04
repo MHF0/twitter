@@ -48,7 +48,8 @@ export default function Register() {
       })
       .then((result) => {
         localStorage.setItem("token", result.data.token);
-        console.log(result.data);
+        localStorage.setItem("curentUser", email.toLowerCase());
+        console.log(email);
         toast.success(result.data.message);
         navigate(`/home`);
       })
